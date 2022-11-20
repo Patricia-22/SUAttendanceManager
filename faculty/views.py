@@ -5,6 +5,9 @@ from django.shortcuts import render,redirect
 from login.models import Department,Admin,Class,Student,Faculty,Calender,Course,Attendance,Timetable,Teache
 from django.contrib import messages
 import requests
+from django.views.decorators.csrf import csrf_exempt
+from faculty.function import handle_uploaded_file  
+
 
 # Create your views here.
 fac=""
@@ -174,5 +177,12 @@ def fac_report(request):
 
 def detectfaceapi(request):
     detect={'Detect':'True'}
-    send_data=requests.post('http://127.0.0.1:5000',json=detect)
-    return HttpResponse(send_data.text)
+    send_data=requests.post('http://127.0.0.1:5000/run',json=detect)
+    return redirect(updatedindex)
+
+@csrf_exempt
+def attendancefile(request):
+    if request.method=="POST":
+         handle_uploaded_file(request.FILES['file'])
+    return HttpResponse("File uploaded successfuly")
+
