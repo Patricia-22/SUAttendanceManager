@@ -4,6 +4,7 @@ from django.template import loader
 from django.shortcuts import render,redirect
 from login.models import Department,Admin,Class,Student,Faculty,Calender,Course,Attendance,Timetable,Teache
 from django.contrib import messages
+import requests
 
 # Create your views here.
 stu=""
@@ -66,7 +67,11 @@ def studprofile(request):
         file=request.FILES['student_image']
         with open('static/student_images/'+fname+" "+lname+".jpg", 'wb+') as destination:  
             for chunk in file.chunks():  
-                destination.write(chunk)
+                destination.write(chunk)  
+        newfile=open('static/student_images/'+fname+" "+lname+".jpg", 'rb')
+        url='http://127.0.0.1:5000/image'
+        file={'file':newfile}
+        requests.post(url, files=file)
     stud=Student.objects.filter(stud_id=stu)
     return render(request,'studprofile.html',{'stu':stud.get(), 'fname':fname,'lname':lname})
 
