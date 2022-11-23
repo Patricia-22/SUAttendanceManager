@@ -4,6 +4,7 @@ from django.template import loader
 from django.shortcuts import render,redirect
 from login.models import Department,Admin,Class,Student,Faculty,Calender,Course,Attendance,Timetable,Teache
 from django.contrib import messages
+import requests
 
 # Create your views here.
 stu=""
@@ -45,6 +46,8 @@ def studlogin(request):
         return redirect('index')
 
 def studprofile(request):
+    fname=Student.objects.get(stud_id=stu).f_name
+    lname=Student.objects.get(stud_id=stu).l_name
     if request.method=="POST":
         try:
             stud=Student.objects.filter(stud_id=stu)
@@ -56,13 +59,21 @@ def studprofile(request):
             if ln !="" :
                 Student.objects.filter(stud_id=stu).update(l_name=ln)
             if pa !="" :
-                Student.objects.filter(stud_id=stu).update(f_password=pa)
+                Student.objects.filter(stud_id=stu).update(s_password=pa)
+            
         except:
             messages.error(request, 'Oops something went wrong!')
             return redirect('studprofile')
+        file=request.FILES['student_image']
+        with open('static/student_images/'+fname+" "+lname+".jpg", 'wb+') as destination:  
+            for chunk in file.chunks():  
+                destination.write(chunk)  
+        newfile=open('static/student_images/'+fname+" "+lname+".jpg", 'rb')
+        url='http://127.0.0.1:5000/image'
+        file={'file':newfile}
+        requests.post(url, files=file)
     stud=Student.objects.filter(stud_id=stu)
-    print(stud)
-    return render(request,'studprofile.html',{'stu':stud.get()})
+    return render(request,'studprofile.html',{'stu':stud.get(), 'fname':fname,'lname':lname})
 
 def studindex(request):
     dept=Department.objects.filter(dept_id=dep)
